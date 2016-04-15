@@ -1,19 +1,4 @@
-/*!
- * ScrollMagic v2.0.5 (2015-04-29)
- * The javascript library for magical scroll interactions.
- * (c) 2015 Jan Paepke (@janpaepke)
- * Project Website: http://scrollmagic.io
- * 
- * @version 2.0.5
- * @license Dual licensed under MIT license and GPL.
- * @author Jan Paepke - e-mail@janpaepke.de
- *
- * @file ScrollMagic GSAP Animation Plugin.
- *
- * requires: GSAP ~1.14
- * Powered by the Greensock Animation Platform (GSAP): http://www.greensock.com/js
- * Greensock License info at http://www.greensock.com/licensing/
- */
+
 /**
  * This plugin is meant to be used in conjunction with the Greensock Animation Plattform.  
  * It offers an easy API to trigger Tweens or synchronize them to the scrollbar movement.
@@ -28,19 +13,19 @@
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD. Register as an anonymous module.
-		define(['ScrollMagic', 'TweenMax', 'TimelineMax'], factory);
+		define(['ScrollMagic', 'soundManager'], factory);
 	} else if (typeof exports === 'object') {
 		// CommonJS
 		// Loads whole gsap package onto global scope.
-		require('gsap');
-		factory(require('scrollmagic'), TweenMax, TimelineMax);
+		require('soundmanager2');
+		factory(require('scrollmagic'), soundManager);
 	} else {
 		// Browser globals
-		factory(root.ScrollMagic || (root.jQuery && root.jQuery.ScrollMagic), root.TweenMax || root.TweenLite, root.TimelineMax || root.TimelineLite);
+		factory(root.ScrollMagic || root.soundManager);
 	}
-}(this, function (ScrollMagic, Tween, Timeline) {
+}(this, function (ScrollMagic, soundManager) {
 	"use strict";
-	var NAMESPACE = "animation.gsap";
+	var NAMESPACE = "animation.soundmanager2";
 
 	var
 	console = window.console || {},
@@ -49,8 +34,8 @@
 	if (!ScrollMagic) {
 		err("(" + NAMESPACE + ") -> ERROR: The ScrollMagic main module could not be found. Please make sure it's loaded before this plugin or use an asynchronous loader like requirejs.");
 	}
-	if (!Tween) {
-		err("(" + NAMESPACE + ") -> ERROR: TweenLite or TweenMax could not be found. Please make sure GSAP is loaded before ScrollMagic or use an asynchronous loader like requirejs.");
+	if (!soundManager) {
+		err("(" + NAMESPACE + ") -> ERROR: SoundManager2 could not be found. Please make sure SoundManager2 is loaded before ScrollMagic or use an asynchronous loader like requirejs.");
 	}
 
 /*
@@ -90,17 +75,17 @@
 	 * @returns {Scene} `set` -  Parent object for chaining.
 	 */
 	// add option (TODO: DOC (private for dev))
-	ScrollMagic.Scene.addOption("tweenChanges", // name
-	false, // default
+	// ScrollMagic.Scene.addOption("tweenChanges", // name
+	// false, // default
 
 
-	function (val) { // validation callback
-		return !!val;
-	});
+	// function (val) { // validation callback
+	// 	return !!val;
+	// });
 	// extend scene
 	ScrollMagic.Scene.extend(function () {
 		var Scene = this,
-			_tween;
+			_sound;
 
 		var log = function () {
 			if (Scene._log) { // not available, when main source minified
@@ -111,48 +96,61 @@
 
 		// set listeners
 		Scene.on("progress.plugin_gsap", function () {
-			updateTweenProgress();
+			updateSoundProgress();
 		});
 		Scene.on("destroy.plugin_gsap", function (e) {
-			Scene.removeTween(e.reset);
+			Scene.removeSound(e.reset);
 		});
 
 		/**
 		 * Update the tween progress to current position.
 		 * @private
 		 */
-		var updateTweenProgress = function () {
-			if (_tween) {
+		var updateSoundProgress = function () {
+			if (_sound) {
 				var
 				progress = Scene.progress(),
 					state = Scene.state();
-				if (_tween.repeat && _tween.repeat() === -1) {
-					// infinite loop, so not in relation to progress
-					if (state === 'DURING' && _tween.paused()) {
-						_tween.play();
-					} else if (state !== 'DURING' && !_tween.paused()) {
-						_tween.pause();
+
+					// console.log('state', state);
+					// console.log('_sound.playState', _sound.playState);
+
+					if (state === 'DURING' && _sound.playState === 0) {
+						_sound.play();
+					}if (state === 'DURING' && _sound.playState === 1) {
+						_sound.resume();
+					} else if (state !== 'DURING' && _sound.playState === 1) {
+						_sound.pause();
 					}
-				} else if (progress != _tween.progress()) { // do we even need to update the progress?
-					// no infinite loop - so should we just play or go to a specific point in time?
-					if (Scene.duration() === 0) {
-						// play the animation
-						if (progress > 0) { // play from 0 to 1
-							_tween.play();
-						} else { // play from 1 to 0
-							_tween.reverse();
-						}
-					} else {
-						// go to a specific point in time
-						if (Scene.tweenChanges() && _tween.tweenTo) {
-							// go smooth
-							_tween.tweenTo(progress * _tween.duration());
-						} else {
-							// just hard set it
-							_tween.progress(progress).pause();
-						}
-					}
-				}
+				// 	
+				// if (_sound.repeat && _sound.repeat() === -1) {
+				// 	// infinite loop, so not in relation to progress
+				// 	if (state === 'DURING' && _sound.paused()) {
+				// 		_sound.play();
+				// 	} else if (state !== 'DURING' && !_sound.paused()) {
+				// 		_sound.pause();
+				// 	}
+				// } else if (progress != _sound.progress()) { // do we even need to update the progress?
+				// 	// no infinite loop - so should we just play or go to a specific point in time?
+				// 	if (Scene.duration() === 0) {
+				// 		// play the animation
+				// 		if (progress > 0) { // play from 0 to 1
+				// 			_sound.play();
+				// 		} else { // play from 1 to 0
+				// 			_sound.reverse();
+				// 		}
+				// 	} else {
+				// 		// go to a specific point in time
+				// 		if (Scene.tweenChanges() && _sound.tweenTo) {
+				// 			// go smooth
+				// 			_sound.tweenTo(progress * _sound.duration());
+				// 		} else {
+				// 			// just hard set it
+				// 			_sound.progress(progress).pause();
+				// 		}
+				// 	}
+				// }
+				//
 			}
 		};
 
@@ -162,7 +160,7 @@
 		 * 
 		 * If the scene has a duration, the tween's duration will be projected to the scroll distance of the scene, meaning its progress will be synced to scrollbar movement.  
 		 * For a scene with a duration of `0`, the tween will be triggered when scrolling forward past the scene's trigger position and reversed, when scrolling back.  
-		 * To gain better understanding, check out the [Simple Tweening example](../examples/basic/simple_tweening.html).
+		 * To gain better understanding, check out the [Simple Tweening example](../examples/basic/simple_sounding.html).
 		 *
 		 * Instead of supplying a tween this method can also be used as a shorthand for `TweenMax.to()` (see example below).
 		 * @memberof! animation.GSAP#
@@ -197,6 +195,7 @@
 		 * @returns {Scene} Parent object for chaining.
 		 */
 		Scene.setSound = function (soundMangerObject, duration, params) {
+			console.log(params);
 			// var newTween;
 			// if (arguments.length > 1) {
 			// 	if (arguments.length < 3) {
@@ -219,23 +218,24 @@
 			// 	log(1, "ERROR calling method 'setTween()': Supplied argument is not a valid TweenObject");
 			// 	return Scene;
 			// }
-			// if (_tween) { // kill old tween?
+			// if (_sound) { // kill old tween?
 			// 	Scene.removeTween();
 			// }
-			// _tween = newTween;
+			_sound = soundMangerObject;
+			// _sound.load();
 
 			// // some properties need to be transferred it to the wrapper, otherwise they would get lost.
 			// if (TweenObject.repeat && TweenObject.repeat() === -1) { // TweenMax or TimelineMax Object?
-			// 	_tween.repeat(-1);
-			// 	_tween.yoyo(TweenObject.yoyo());
+			// 	_sound.repeat(-1);
+			// 	_sound.yoyo(TweenObject.yoyo());
 			// }
 			// // Some tween validations and debugging helpers
-			// if (Scene.tweenChanges() && !_tween.tweenTo) {
+			// if (Scene.tweenChanges() && !_sound.tweenTo) {
 			// 	log(2, "WARNING: tweenChanges will only work if the TimelineMax object is available for ScrollMagic.");
 			// }
 
 			// // check if there are position tweens defined for the trigger and warn about it :)
-			// if (_tween && Scene.controller() && Scene.triggerElement() && Scene.loglevel() >= 2) { // controller is needed to know scroll direction.
+			// if (_sound && Scene.controller() && Scene.triggerElement() && Scene.loglevel() >= 2) { // controller is needed to know scroll direction.
 			// 	var
 			// 	triggerTweens = Tween.getTweensOf(Scene.triggerElement()),
 			// 		vertical = Scene.controller().info("vertical");
@@ -253,7 +253,7 @@
 			// // warn about tween overwrites, when an element is tweened multiple times
 			// if (parseFloat(TweenLite.version) >= 1.14) { // onOverwrite only present since GSAP v1.14.0
 			// 	var
-			// 	list = _tween.getChildren ? _tween.getChildren(true, true, false) : [_tween],
+			// 	list = _sound.getChildren ? _sound.getChildren(true, true, false) : [_sound],
 			// 		// get all nested tween objects
 			// 		newCallback = function () {
 			// 			log(2, "WARNING: tween was overwritten by another. To learn how to avoid this issue see here: https://github.com/janpaepke/ScrollMagic/wiki/WARNING:-tween-was-overwritten-by-another");
@@ -273,7 +273,7 @@
 			// }
 			// log(3, "added tween");
 
-			// updateTweenProgress();
+			updateSoundProgress();
 			return Scene;
 		};
 
@@ -294,17 +294,38 @@
 		 * @param {boolean} [reset=false] - If `true` the tween will be reset to its initial values.
 		 * @returns {Scene} Parent object for chaining.
 		 */
-		Scene.removeTween = function (reset) {
-			if (_tween) {
-				if (reset) {
-					_tween.progress(0).pause();
-				}
-				_tween.kill();
-				_tween = undefined;
-				log(3, "removed tween (reset: " + (reset ? "true" : "false") + ")");
-			}
+		Scene.removeSound = function (reset) {
+			// if (_sound) {
+			// 	if (reset) {
+			// 		_sound.progress(0).pause();
+			// 	}
+			// 	_sound.kill();
+			// 	_sound = undefined;
+			// 	log(3, "removed tween (reset: " + (reset ? "true" : "false") + ")");
+			// }
 			return Scene;
 		};
+		// 
+		/*
+		if(typeof soundManager !== 'undefined')
+soundManager.fadeTo = function(id, dur, toVol, callback){
+	dur      = dur || 1000;
+	toVol    = toVol || 0;
+	callback = typeof callback == 'function' ? callback : function(){};
+	var s    = soundManager.getSoundById(id),
+	    k    = s.volume,
+	    t    = dur/Math.abs(k - toVol),
+	    i    = setInterval(function(){
+		        k = k > toVol ? k - 1 : k + 1;
+		        s.setVolume(k);
+		        if(k == toVol){ 
+		                callback.call(this);
+			        clearInterval(i);
+			        i = null;
+		        }
+		}, t);	
+}
+		 */
 
 	});
 })); 
