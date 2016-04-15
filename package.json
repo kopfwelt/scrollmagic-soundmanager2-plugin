@@ -1,0 +1,26 @@
+{
+  "name": "scrollmagic-soundmanager2-plugin",
+  "version": "0.0.1",
+  "description": "ScrollMagic sound plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://sinnwell@github.com/kopfwelt/scrollmagic-soundmanager2-plugin.git"
+  },
+  "keywords": [
+    "SrollMagic",
+    "SoundManager"
+  ],
+  "author": "Steve Sinnwell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kopfwelt/scrollmagic-soundmanager2-plugin/issues"
+  },
+  "homepage": "https://github.com/kopfwelt/scrollmagic-soundmanager2-plugin#readme",
+  "dependencies": {
+    "soundmanager2": "^2.97.20150601-a"
+  }
+}
