@@ -196,84 +196,84 @@
 		 * @param {object} params - The parameters for the tween
 		 * @returns {Scene} Parent object for chaining.
 		 */
-		Scene.setTween = function (TweenObject, duration, params) {
-			var newTween;
-			if (arguments.length > 1) {
-				if (arguments.length < 3) {
-					params = duration;
-					duration = 1;
-				}
-				TweenObject = Tween.to(TweenObject, duration, params);
-			}
-			try {
-				// wrap Tween into a Timeline Object if available to include delay and repeats in the duration and standardize methods.
-				if (Timeline) {
-					newTween = new Timeline({
-						smoothChildTiming: true
-					}).add(TweenObject);
-				} else {
-					newTween = TweenObject;
-				}
-				newTween.pause();
-			} catch (e) {
-				log(1, "ERROR calling method 'setTween()': Supplied argument is not a valid TweenObject");
-				return Scene;
-			}
-			if (_tween) { // kill old tween?
-				Scene.removeTween();
-			}
-			_tween = newTween;
+		Scene.setSound = function (soundMangerObject, duration, params) {
+			// var newTween;
+			// if (arguments.length > 1) {
+			// 	if (arguments.length < 3) {
+			// 		params = duration;
+			// 		duration = 1;
+			// 	}
+			// 	TweenObject = Tween.to(TweenObject, duration, params);
+			// }
+			// try {
+			// 	// wrap Tween into a Timeline Object if available to include delay and repeats in the duration and standardize methods.
+			// 	if (Timeline) {
+			// 		newTween = new Timeline({
+			// 			smoothChildTiming: true
+			// 		}).add(TweenObject);
+			// 	} else {
+			// 		newTween = TweenObject;
+			// 	}
+			// 	newTween.pause();
+			// } catch (e) {
+			// 	log(1, "ERROR calling method 'setTween()': Supplied argument is not a valid TweenObject");
+			// 	return Scene;
+			// }
+			// if (_tween) { // kill old tween?
+			// 	Scene.removeTween();
+			// }
+			// _tween = newTween;
 
-			// some properties need to be transferred it to the wrapper, otherwise they would get lost.
-			if (TweenObject.repeat && TweenObject.repeat() === -1) { // TweenMax or TimelineMax Object?
-				_tween.repeat(-1);
-				_tween.yoyo(TweenObject.yoyo());
-			}
-			// Some tween validations and debugging helpers
-			if (Scene.tweenChanges() && !_tween.tweenTo) {
-				log(2, "WARNING: tweenChanges will only work if the TimelineMax object is available for ScrollMagic.");
-			}
+			// // some properties need to be transferred it to the wrapper, otherwise they would get lost.
+			// if (TweenObject.repeat && TweenObject.repeat() === -1) { // TweenMax or TimelineMax Object?
+			// 	_tween.repeat(-1);
+			// 	_tween.yoyo(TweenObject.yoyo());
+			// }
+			// // Some tween validations and debugging helpers
+			// if (Scene.tweenChanges() && !_tween.tweenTo) {
+			// 	log(2, "WARNING: tweenChanges will only work if the TimelineMax object is available for ScrollMagic.");
+			// }
 
-			// check if there are position tweens defined for the trigger and warn about it :)
-			if (_tween && Scene.controller() && Scene.triggerElement() && Scene.loglevel() >= 2) { // controller is needed to know scroll direction.
-				var
-				triggerTweens = Tween.getTweensOf(Scene.triggerElement()),
-					vertical = Scene.controller().info("vertical");
-				triggerTweens.forEach(function (value, index) {
-					var
-					tweenvars = value.vars.css || value.vars,
-						condition = vertical ? (tweenvars.top !== undefined || tweenvars.bottom !== undefined) : (tweenvars.left !== undefined || tweenvars.right !== undefined);
-					if (condition) {
-						log(2, "WARNING: Tweening the position of the trigger element affects the scene timing and should be avoided!");
-						return false;
-					}
-				});
-			}
+			// // check if there are position tweens defined for the trigger and warn about it :)
+			// if (_tween && Scene.controller() && Scene.triggerElement() && Scene.loglevel() >= 2) { // controller is needed to know scroll direction.
+			// 	var
+			// 	triggerTweens = Tween.getTweensOf(Scene.triggerElement()),
+			// 		vertical = Scene.controller().info("vertical");
+			// 	triggerTweens.forEach(function (value, index) {
+			// 		var
+			// 		tweenvars = value.vars.css || value.vars,
+			// 			condition = vertical ? (tweenvars.top !== undefined || tweenvars.bottom !== undefined) : (tweenvars.left !== undefined || tweenvars.right !== undefined);
+			// 		if (condition) {
+			// 			log(2, "WARNING: Tweening the position of the trigger element affects the scene timing and should be avoided!");
+			// 			return false;
+			// 		}
+			// 	});
+			// }
 
-			// warn about tween overwrites, when an element is tweened multiple times
-			if (parseFloat(TweenLite.version) >= 1.14) { // onOverwrite only present since GSAP v1.14.0
-				var
-				list = _tween.getChildren ? _tween.getChildren(true, true, false) : [_tween],
-					// get all nested tween objects
-					newCallback = function () {
-						log(2, "WARNING: tween was overwritten by another. To learn how to avoid this issue see here: https://github.com/janpaepke/ScrollMagic/wiki/WARNING:-tween-was-overwritten-by-another");
-					};
-				for (var i = 0, thisTween, oldCallback; i < list.length; i++) { /*jshint loopfunc: true */
-					thisTween = list[i];
-					if (oldCallback !== newCallback) { // if tweens is added more than once
-						oldCallback = thisTween.vars.onOverwrite;
-						thisTween.vars.onOverwrite = function () {
-							if (oldCallback) {
-								oldCallback.apply(this, arguments);
-							}
-							newCallback.apply(this, arguments);
-						};
-					}
-				}
-			}
-			log(3, "added tween");
+			// // warn about tween overwrites, when an element is tweened multiple times
+			// if (parseFloat(TweenLite.version) >= 1.14) { // onOverwrite only present since GSAP v1.14.0
+			// 	var
+			// 	list = _tween.getChildren ? _tween.getChildren(true, true, false) : [_tween],
+			// 		// get all nested tween objects
+			// 		newCallback = function () {
+			// 			log(2, "WARNING: tween was overwritten by another. To learn how to avoid this issue see here: https://github.com/janpaepke/ScrollMagic/wiki/WARNING:-tween-was-overwritten-by-another");
+			// 		};
+			// 	for (var i = 0, thisTween, oldCallback; i < list.length; i++) { /*jshint loopfunc: true */
+			// 		thisTween = list[i];
+			// 		if (oldCallback !== newCallback) { // if tweens is added more than once
+			// 			oldCallback = thisTween.vars.onOverwrite;
+			// 			thisTween.vars.onOverwrite = function () {
+			// 				if (oldCallback) {
+			// 					oldCallback.apply(this, arguments);
+			// 				}
+			// 				newCallback.apply(this, arguments);
+			// 			};
+			// 		}
+			// 	}
+			// }
+			// log(3, "added tween");
 
-			updateTweenProgress();
+			// updateTweenProgress();
 			return Scene;
 		};
 
